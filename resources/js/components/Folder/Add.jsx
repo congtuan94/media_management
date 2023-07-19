@@ -3,13 +3,13 @@ import React, { useEffect, useState } from 'react';
 
 
 export default function Add(props) {
-  const { inforFolderId, createFolderModal, setCreateFolderModal, folders, setFolders, messageApi } = props;
+  const { selectedFolderId, createFolderModal, setCreateFolderModal, folders, setFolders, messageApi } = props;
   const [createFolderSuccess, setCreateFolderSuccess] = useState(false);
   const [form] = Form.useForm();
 
   const onCreateFolderFinish = async (data) => {
     console.log(data);
-    const dataCreate = { ...data, parent_id: inforFolderId }
+    const dataCreate = { ...data, parent_id: selectedFolderId }
     try {
       const response = await axios.post('http://127.0.0.1:8000/api/folder/add', dataCreate);
       console.log(response);

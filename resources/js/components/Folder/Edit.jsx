@@ -3,19 +3,19 @@ import React, { useEffect, useState } from 'react';
 
 
 export default function EditFolder(props) {
-  const { inforFolder, editFolderModal, setEditFolderModal, folders, setFolders, messageApi } = props;
+  const { selectedFolder, editFolderModal, setEditFolderModal, folders, setFolders, messageApi } = props;
   const [editFolderSuccess, setEditFolderSuccess] = useState(false);
   const [form] = Form.useForm();
 
   const onEditFolderFinish = async (data) => {
     try {
-      await axios.put(`http://127.0.0.1:8000/api/folder/${inforFolder?.id}`, data);
+      await axios.put(`http://127.0.0.1:8000/api/folder/${selectedFolder?.id}`, data);
       setEditFolderSuccess(true);
       // Tạo một bản sao của mảng folders
       const updatedFolders = [...folders];
 
       // Tìm vị trí của folder cần chỉnh sửa trong mảng
-      const index = updatedFolders.findIndex(folder => folder.id === inforFolder?.id);
+      const index = updatedFolders.findIndex(folder => folder.id === selectedFolder?.id);
 
       // Cập nhật dữ liệu của folder trong mảng
       updatedFolders[index] = {
@@ -32,7 +32,7 @@ export default function EditFolder(props) {
   };
 
   const handleEditFolderFinish = (data) => {
-    onEditFolderFinish(data, inforFolder?.id);
+    onEditFolderFinish(data, selectedFolder?.id);
   };
 
   const onEditFolderFinishFailed = (errorInfo) => {
@@ -59,10 +59,10 @@ export default function EditFolder(props) {
   useEffect(() => {
     if (editFolderModal) {
       form.setFieldsValue({
-        name: inforFolder?.name,
+        name: selectedFolder?.name,
       });
     }
-  }, [editFolderModal, inforFolder?.name, form]);
+  }, [editFolderModal, selectedFolder?.name, form]);
 
   return (
     <>
@@ -79,7 +79,7 @@ export default function EditFolder(props) {
           form={form}
           name="edit-folder"
           initialValues={{
-            ["name"]: inforFolder?.name
+            ["name"]: selectedFolder?.name
           }}
           onFinish={handleEditFolderFinish}
           onFinishFailed={onEditFolderFinishFailed}

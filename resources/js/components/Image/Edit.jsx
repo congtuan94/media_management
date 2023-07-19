@@ -3,18 +3,18 @@ import React, { useEffect, useState } from 'react';
 
 
 export default function EditFolder(props) {
-  // const { inforFolder, editFolderModal, setEditFolderModal, folders, setFolders, messageApi } = props;
+  // const { selectedFolder, editFolderModal, setEditFolderModal, folders, setFolders, messageApi } = props;
   // const [editFolderSuccess, setEditFolderSuccess] = useState(false);
   // const [form] = Form.useForm();
 
   // Handle EDIT IMAGE
   const onEditImageFinish = async (data) => {
     try {
-      await axios.put(`http://127.0.0.1:8000/api/folder/${inforFolder?.id}/images/${inforImage?.id}`, data);
+      await axios.put(`http://127.0.0.1:8000/api/folder/${selectedFolder?.id}/images/${selectedImage?.id}`, data);
 
       // setEditImageSuccess(true);
       const updatedImages = [...images];
-      const index = updatedImages.findIndex(image => image.id === inforImage?.id);
+      const index = updatedImages.findIndex(image => image.id === selectedImage?.id);
 
       updatedImages[index] = {
         ...updatedImages[index],
@@ -27,7 +27,7 @@ export default function EditFolder(props) {
     }
   };
   const handleEditImageFinish = (data) => {
-    onEditImageFinish(data, inforFolder?.id, inforImage?.id);
+    onEditImageFinish(data, selectedFolder?.id, selectedImage?.id);
   };
 
   const onEditImageFinishFailed = (errorInfo) => {
@@ -54,10 +54,10 @@ export default function EditFolder(props) {
   // useEffect(() => {
   //   if (editFolderModal) {
   //     form.setFieldsValue({
-  //       name: inforFolder?.name,
+  //       name: selectedFolder?.name,
   //     });
   //   }
-  // }, [editFolderModal, inforFolder?.name, form]);
+  // }, [editFolderModal, selectedFolder?.name, form]);
 
   return (
     <>
@@ -73,7 +73,7 @@ export default function EditFolder(props) {
         <Form
           name="edit-image"
           initialValues={{
-            ["name"]: inforImage?.name
+            ["name"]: selectedImage?.name
           }}
           onFinish={handleEditImageFinish}
           onFinishFailed={onEditImageFinishFailed}

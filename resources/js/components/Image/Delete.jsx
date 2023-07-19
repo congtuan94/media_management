@@ -3,17 +3,17 @@ import React, { useEffect, useState } from 'react';
 
 
 export default function Delete(props) {
-  // const { inforFolderId, deleteFolderModal, setDeleteFolderModal, folders, setFolders, Text, messageApi } = props;
+  // const { selectedFolderId, deleteFolderModal, setDeleteFolderModal, folders, setFolders, Text, messageApi } = props;
   const [deleteImageSuccess, setDeleteImageSuccess] = useState(false);
 
   // Handle DELETE IMAGE
   const onDeleteImageFinish = async () => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/image/${inforImage?.id}`);
+      await axios.delete(`http://127.0.0.1:8000/api/image/${selectedImage?.id}`);
       setDeleteImageSuccess(true);
 
-      // Lọc bỏ phần tử có id trùng với inforFolder.id
-      const updatedImages = images.filter(image => image.id !== inforImage?.id);
+      // Lọc bỏ phần tử có id trùng với selectedFolder.id
+      const updatedImages = images.filter(image => image.id !== selectedImage?.id);
 
       // Cập nhật dữ liệu tại client trước khi gửi request tới server
       setImages(updatedImages);
