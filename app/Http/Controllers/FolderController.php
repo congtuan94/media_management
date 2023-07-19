@@ -39,9 +39,6 @@ class FolderController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        if (!$request->get('parent_id')) {
-            $data['parent_id'] = null;
-        }
 
         if ($request->get('parent_id')) {
             $isExisted = Folder::where([
@@ -52,26 +49,30 @@ class FolderController extends Controller
             $isExisted = Folder::where([
                 'name' => $request->get('name'),
             ])->exists();
+            $data['parent_id'] = null;
         }
         
         if ($isExisted) {
             return response()->json([
                 'message' => 'Folder already exists',
-                'status' => 'existed',
+                'status' => 400,
             ]);
             // throw new \Exception('Folder already exists', 400);
         }
         $name = $data['name'];
         Folder::create($data);
-        $now = Carbon::now();
-        $year = $now->year;
-        $month = $now->month;
-        $day = $now->day;
-        logger('ddd', $data);
+        // $now = Carbon::now();
+        // $year = $now->year;
+        // $month = $now->month;
+        // $day = $now->day;
+        // logger('ddd', $data);
 
         $path = storage_path("app/public/images/$name");
         File::makeDirectory($path, $mode = 0777, true, true);
-        return response()->json('Create Category Success!', 200);
+        return response()->json([
+            'message' => 'Create Folder Success!',
+            'status' => 200,
+        ]);
     }
 
     /**
@@ -106,6 +107,9 @@ class FolderController extends Controller
     public function destroy($id)
     {
         Folder::findOrFail($id)->delete();
-        return response()->json('Delete Folder Success!', 200);
+        return response()->json([
+            'message' => 'Delete Folder Success!',
+            'status' => 200,
+        ]);
     }
 }

@@ -1,32 +1,32 @@
 import { Button, Modal, Form, Input } from 'antd';
-import React, { useEffect, useState } from 'react';
-
+import React, { useContext, useState } from 'react';
+import { AppContext } from '../../AppContext';
 
 export default function Add(props) {
-  const { selectedFolderId, createFolderModal, setCreateFolderModal, folders, setFolders, messageApi } = props;
-  const [createFolderSuccess, setCreateFolderSuccess] = useState(false);
+  const {
+    folders,
+    setFolders,
+    selectedFolder,
+  } = useContext(AppContext)
+
+  const { createFolderModal, setCreateFolderModal, messageApi } = props;
   const [form] = Form.useForm();
 
   const onCreateFolderFinish = async (data) => {
-    console.log(data);
-    const dataCreate = { ...data, parent_id: selectedFolderId }
+    const dataCreate = { ...data, parent_id: selectedFolder.id }
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/folder/add', dataCreate);
-      console.log(response);
-      if (response.data.status === 'existed') {
-        messageApi.open({
-          type: 'error',
-          content: response.data.message,
-          duration: 5,
-        });
+      const res = await axios.post('http://127.0.0.1:8000/api/folder/add', dataCreate);
+      if (res.data.status === 400) {
+        messageApi.open({ type: 'error', content: res.data.message, duration: 5 });
       } else {
-
-        setCreateFolderSuccess(true);
         setFolders([...folders, data]);
+
+        form.resetFields();
+        setCreateFolderModal(false);
+        messageApi.open({ type: 'success', content: res.data.message, duration: 5 });
       }
     } catch (error) {
       console.log(error);
-      //
     }
   };
 
@@ -37,19 +37,6 @@ export default function Add(props) {
   const hideModal = () => {
     setCreateFolderModal(false);
   };
-
-  useEffect(() => {
-    if (createFolderSuccess) {
-      form.resetFields();
-      setCreateFolderModal(false);
-      setCreateFolderSuccess(false);
-      // messageApi.open({
-      //   type: 'success',
-      //   content: createFolderSuccess === true ? 'Create Folder Success!' : '',
-      //   duration: 5,
-      // });
-    }
-  }, [createFolderSuccess])
 
   return (
     <>

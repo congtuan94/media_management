@@ -5,12 +5,12 @@ export const AppContext = createContext();
 const AppContextProvider = ({ children }) => {
   const [folders, setFolders] = useState([]);
   const [images, setImages] = useState([]);
+  const [selectedFolder, setSelectedFolder] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   // const [files, setFiles] = useState([]);
   // const [breadcumbs, setBreadcumbs] = useState([]);
-  const [selectedFolder, setSelectedFolder] = useState(null);
   // const [selectedFolderGlobal, setSelectedFolderGlobal] = useState(null);
-  const [selectedImage, setSelectedImage] = useState(null);
   // const [showImageModal, setShowImageModal] = useState(false);
   // const [isMultipleSelected, setIsMultipleSelected] = useState(false);
   // const [isFromGallery, setIsFromGallery] = useState(false);
@@ -26,17 +26,15 @@ const AppContextProvider = ({ children }) => {
         setFolders,
         images,
         setImages,
+        selectedFolder,
+        setSelectedFolder,
+        selectedImage,
+        setSelectedImage,
 
         // showImageModal,
         // setShowImageModal,
-        // folders,
-        // setFolders,
         // files,
         // setFiles,
-        // selectedImage,
-        // setSelectedImage,
-        selectedFolder,
-        setSelectedFolder,
         // breadcumbs,
         // setBreadcumbs,
         // isMultipleSelected,

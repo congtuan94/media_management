@@ -21,8 +21,6 @@ export default function MediaChild() {
     setSelectedImage
   } = useContext(AppContext)
 
-
-  // State - Toast : show toast
   const [messageApi, contextHolder] = message.useMessage();
 
 
@@ -76,7 +74,6 @@ export default function MediaChild() {
   }
 
   const handleDoubleClick = (id) => {
-
     axios.get(`http://127.0.0.1:8000/api/folder/${id}/images`)
       .then(res => {
         console.log(res.data);
@@ -91,9 +88,7 @@ export default function MediaChild() {
   const handleSearch = async () => {
     try {
       const res = await axios.get(!selectedFolder ? 'http://127.0.0.1:8000/api/folder' : `http://127.0.0.1:8000/api/folder/${selectedFolder?.id}/images`, {
-        params: {
-          search: keyword
-        }
+        params: { search: keyword }
       });
       !selectedFolder ? setFolders(res.data) : setImages(res.data);
     } catch (error) {
@@ -268,32 +263,21 @@ export default function MediaChild() {
       </Row >
 
       <AddFolder
-        selectedFolderId={selectedFolder?.id}
         createFolderModal={createFolderModal}
         setCreateFolderModal={setCreateFolderModal}
-        folders={folders}
-        setFolders={setFolders}
         messageApi={messageApi}
       />
 
       <DeleteFolder
-        selectedFolderId={selectedFolder?.id}
         deleteFolderModal={deleteFolderModal}
         setDeleteFolderModal={setDeleteFolderModal}
-        folders={folders}
-        setFolders={setFolders}
-        Text={Text}
         messageApi={messageApi}
       />
 
       <EditFolder
-        selectedFolder={selectedFolder}
         editFolderModal={editFolderModal}
         setEditFolderModal={setEditFolderModal}
-        Text={Text}
         messageApi={messageApi}
-        folders={folders}
-        setFolders={setFolders}
       />
 
       {/* <DeleteImage

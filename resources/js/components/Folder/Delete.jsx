@@ -1,21 +1,26 @@
-import { Button, Modal, Form } from 'antd';
-import React, { useEffect, useState } from 'react';
-
+import { Button, Modal, Form, Typography } from 'antd';
+import React, { useContext } from 'react';
+import { AppContext } from '../../AppContext';
 
 export default function Delete(props) {
-  const { selectedFolderId, deleteFolderModal, setDeleteFolderModal, folders, setFolders, Text, messageApi } = props;
-  const [deleteFolderSuccess, setDeleteFolderSuccess] = useState(false);
+  const {
+    folders,
+    setFolders,
+    selectedFolder,
+  } = useContext(AppContext)
+
+  const { deleteFolderModal, setDeleteFolderModal, messageApi } = props;
+  const { Text } = Typography;
 
   const onDeleteFolderFinish = async () => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/folder/${selectedFolderId}`);
-      setDeleteFolderSuccess(true);
+      const res = await axios.delete(`http://127.0.0.1:8000/api/folder/${selectedFolder.id}`);
 
-      // Lọc bỏ phần tử có id trùng với selectedFolderId
-      const updatedFolders = folders.filter(folder => folder.id !== selectedFolderId);
-
-      // Cập nhật dữ liệu tại client trước khi gửi request tới server
+      const updatedFolders = folders.filter(folder => folder.id !== selectedFolder.id);
       setFolders(updatedFolders);
+
+      setDeleteFolderModal(false);
+      messageApi.open({ type: 'success', content: res.data.message, duration: 5 });
     } catch (error) {
       console.log(error);
     }
@@ -28,18 +33,6 @@ export default function Delete(props) {
   const hideModal = () => {
     setDeleteFolderModal(false);
   };
-
-  useEffect(() => {
-    if (deleteFolderSuccess) {
-      setDeleteFolderModal(false);
-      setDeleteFolderSuccess(false);
-      messageApi.open({
-        type: 'success',
-        content: deleteFolderSuccess === true ? 'Delete Folder Success!' : '',
-        duration: 5,
-      });
-    }
-  }, [deleteFolderSuccess])
 
   return (
     <>

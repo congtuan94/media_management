@@ -1,31 +1,32 @@
-import { Button, Modal, Form, Input } from 'antd';
-import React, { useEffect, useState } from 'react';
-
+import { Button, Modal, Form, Input, Typography } from 'antd';
+import React, { useContext, useEffect } from 'react';
+import { AppContext } from '../../AppContext';
 
 export default function EditFolder(props) {
-  const { selectedFolder, editFolderModal, setEditFolderModal, folders, setFolders, messageApi } = props;
-  const [editFolderSuccess, setEditFolderSuccess] = useState(false);
+  const {
+    folders,
+    setFolders,
+    selectedFolder,
+  } = useContext(AppContext)
+
+  const { editFolderModal, setEditFolderModal, messageApi } = props;
   const [form] = Form.useForm();
 
   const onEditFolderFinish = async (data) => {
     try {
       await axios.put(`http://127.0.0.1:8000/api/folder/${selectedFolder?.id}`, data);
-      setEditFolderSuccess(true);
-      // Tạo một bản sao của mảng folders
+
       const updatedFolders = [...folders];
-
-      // Tìm vị trí của folder cần chỉnh sửa trong mảng
       const index = updatedFolders.findIndex(folder => folder.id === selectedFolder?.id);
-
-      // Cập nhật dữ liệu của folder trong mảng
       updatedFolders[index] = {
         ...updatedFolders[index],
         ...data
       };
-
-      // Cập nhật dữ liệu tại client trước khi gửi request tới server
       setFolders(updatedFolders);
 
+      form.resetFields();
+      setEditFolderModal(false);
+      messageApi.open({ type: 'success', content: res.data.message, duration: 5 });
     } catch (error) {
       console.log(error);
     }
@@ -42,19 +43,6 @@ export default function EditFolder(props) {
   const hideModal = () => {
     setEditFolderModal(false);
   };
-
-  useEffect(() => {
-    if (editFolderSuccess) {
-      form.resetFields();
-      setEditFolderModal(false);
-      setEditFolderSuccess(false);
-      messageApi.open({
-        type: 'success',
-        content: editFolderSuccess === true ? 'Rename Folder Success!' : '',
-        duration: 5,
-      });
-    }
-  }, [editFolderSuccess])
 
   useEffect(() => {
     if (editFolderModal) {
