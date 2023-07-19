@@ -1,0 +1,37 @@
+.container {
+  border: 1px solid red;
+}
+
+.custom-button {
+  border-radius: 0;
+  background: #003d4f;
+}
+
+.custom-button:hover {
+  background: #007bff !important;
+}
+
+.header-left {
+  border: 1px solid green;
+  width: 70%;
+  float: left;
+  height: 50px;
+}
+
+.header-right {
+  border: 1px solid blue;
+  width: 29%;
+  float: right;
+  height: 50px;
+}
+
+.ant-space-item {
+  text-align: center;
+}
+
+.folder-styled {
+  font-size: 130px;
+  margin: 0 20px 0 20px;
+  background: rgb(227, 224, 224);
+
+}
