@@ -1,5 +1,5 @@
 import { Button, Modal, Form, Input } from 'antd';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '../../AppContext';
 
 export default function Add(props) {
@@ -13,7 +13,7 @@ export default function Add(props) {
   const [form] = Form.useForm();
 
   const onCreateFolderFinish = async (data) => {
-    const dataCreate = { ...data, parent_id: selectedFolder.id }
+    const dataCreate = { ...data, parent_id: selectedFolder?.id }
     try {
       const res = await axios.post('http://127.0.0.1:8000/api/folder/add', dataCreate);
       if (res.data.status === 400) {

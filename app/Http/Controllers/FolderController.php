@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ImageResource;
 use App\Models\Folder;
+use App\Models\Image;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\File;
 
 class FolderController extends Controller
@@ -19,7 +20,14 @@ class FolderController extends Controller
         if ($searchValue) {
             $folders = Folder::where('name', 'like', '%' . $searchValue . '%')->get();
         } else {
-            $folders = Folder::all();
+            $images = Image::with('folder')->where('folder_id', null)->get();
+            $data = ImageResource::collection($images);
+            $folders = Folder::where('parent_id', null)->get();
+
+            return response()->json([
+                'folders' => $folders,
+                'images' => $images,
+            ]);
         }
 
         return response()->json($folders);
@@ -51,7 +59,7 @@ class FolderController extends Controller
             ])->exists();
             $data['parent_id'] = null;
         }
-        
+
         if ($isExisted) {
             return response()->json([
                 'message' => 'Folder already exists',
@@ -59,15 +67,19 @@ class FolderController extends Controller
             ]);
             // throw new \Exception('Folder already exists', 400);
         }
+
         $name = $data['name'];
         Folder::create($data);
-        // $now = Carbon::now();
-        // $year = $now->year;
-        // $month = $now->month;
-        // $day = $now->day;
-        // logger('ddd', $data);
 
-        $path = storage_path("app/public/images/$name");
+        $parentId = $request->get('parent_id');
+        $folderId = Folder::find($parentId);
+
+        if ($parentId) {
+            $path = storage_path("app/public/images/$folderId->name/$name");
+        } else {
+            $path = storage_path("app/public/images/$name");
+        }
+
         File::makeDirectory($path, $mode = 0777, true, true);
         return response()->json([
             'message' => 'Create Folder Success!',
@@ -97,8 +109,17 @@ class FolderController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->all();
-        Folder::findOrFail($id)->update($data);
-        return response()->json('Rename Folder Success!', 200);
+        $folder = Folder::findOrFail($id);
+        $folder->update($data);
+
+        // $oldPath = storage_path("app/public/images/$folder->name");
+        // $newPath = storage_path("app/public/images/$request->name");
+        // File::moveDirectory($oldPath, $newPath, $mode = 0777, true, true);
+
+        return response()->json([
+            'message' => 'Update Folder Success!',
+            'status' => 200,
+        ]);
     }
 
     /**
@@ -106,7 +127,10 @@ class FolderController extends Controller
      */
     public function destroy($id)
     {
-        Folder::findOrFail($id)->delete();
+        $folder = Folder::findOrFail($id);
+        $folder->delete();
+        $path = storage_path("app/public/images/$folder->name");
+        File::deleteDirectory($path);
         return response()->json([
             'message' => 'Delete Folder Success!',
             'status' => 200,

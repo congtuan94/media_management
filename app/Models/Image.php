@@ -17,13 +17,12 @@ class Image extends Model
         return $this->belongsTo(Folder::class, 'folder_id', 'id');
     }
 
-    public function getThumbnailAttribute()
-    {
-        $folder = $this->folder()->first();
+    // public function getThumbnailAttribute()
+    // {
+    //     $folder = $this->folder()->first();
 
-        return asset('storage/images/'.$folder->name.'/'.$this->name);
-        // return 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4CtaDk3U49ukzwQTk5h6n1mwtWT9HULw-piOF2eF4&s';
-    }
+    //     return asset('storage/images/'.$folder->name.'/'.$this->name);
+    // }
 
     /**
      * Interact with the user's first name.

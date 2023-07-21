@@ -1,4 +1,4 @@
-import { Button, Modal, Form, Input, Typography } from 'antd';
+import { Button, Modal, Form, Input } from 'antd';
 import React, { useContext, useEffect } from 'react';
 import { AppContext } from '../../AppContext';
 
@@ -14,7 +14,7 @@ export default function EditFolder(props) {
 
   const onEditFolderFinish = async (data) => {
     try {
-      await axios.put(`http://127.0.0.1:8000/api/folder/${selectedFolder?.id}`, data);
+      const res= await axios.put(`http://127.0.0.1:8000/api/folder/${selectedFolder?.id}`, data);
 
       const updatedFolders = [...folders];
       const index = updatedFolders.findIndex(folder => folder.id === selectedFolder?.id);

@@ -1,33 +1,39 @@
 import { Button, Modal, Form, Input } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
+import { AppContext } from '../../AppContext';
 
+export default function EditImage(props) {
+  const {
+    images,
+    setImages,
+    selectedImage,
+  } = useContext(AppContext)
 
-export default function EditFolder(props) {
-  // const { selectedFolder, editFolderModal, setEditFolderModal, folders, setFolders, messageApi } = props;
-  // const [editFolderSuccess, setEditFolderSuccess] = useState(false);
-  // const [form] = Form.useForm();
+  const { editImageModal, setEditImageModal, messageApi } = props;
+  const [form] = Form.useForm();
 
-  // Handle EDIT IMAGE
   const onEditImageFinish = async (data) => {
     try {
-      await axios.put(`http://127.0.0.1:8000/api/folder/${selectedFolder?.id}/images/${selectedImage?.id}`, data);
+      const res = await axios.put(`http://127.0.0.1:8000/api/image/${selectedImage?.id}`, data);
 
-      // setEditImageSuccess(true);
       const updatedImages = [...images];
       const index = updatedImages.findIndex(image => image.id === selectedImage?.id);
-
       updatedImages[index] = {
         ...updatedImages[index],
         ...data
       };
-
       setImages(updatedImages);
+
+      form.resetFields();
+      setEditImageModal(false);
+      messageApi.open({ type: 'success', content: res.data.message, duration: 5 });
     } catch (error) {
       console.log(error);
     }
   };
+
   const handleEditImageFinish = (data) => {
-    onEditImageFinish(data, selectedFolder?.id, selectedImage?.id);
+    onEditImageFinish(data, selectedImage?.id);
   };
 
   const onEditImageFinishFailed = (errorInfo) => {
@@ -35,35 +41,22 @@ export default function EditFolder(props) {
   };
 
   const hideModal = () => {
-    setEditImgModal(false);
+    setEditImageModal(false);
   };
 
-  // useEffect(() => {
-  //   if (editFolderSuccess) {
-  //     form.resetFields();
-  //     setEditFolderModal(false);
-  //     setEditFolderSuccess(false);
-  //     messageApi.open({
-  //       type: 'success',
-  //       content: editFolderSuccess === true ? 'Rename Folder Success!' : '',
-  //       duration: 5,
-  //     });
-  //   }
-  // }, [editFolderSuccess])
-
-  // useEffect(() => {
-  //   if (editFolderModal) {
-  //     form.setFieldsValue({
-  //       name: selectedFolder?.name,
-  //     });
-  //   }
-  // }, [editFolderModal, selectedFolder?.name, form]);
+  useEffect(() => {
+    if (editImageModal) {
+      form.setFieldsValue({
+        name: selectedImage?.name,
+      });
+    }
+  }, [editImageModal, selectedImage?.name, form]);
 
   return (
     <>
       <Modal
         title="Edit image"
-        open={editImgModal}
+        open={editImageModal}
         onOk={hideModal}
         onCancel={hideModal}
         okText="Modal"
@@ -71,6 +64,7 @@ export default function EditFolder(props) {
         footer={[]}
       >
         <Form
+          form={form}
           name="edit-image"
           initialValues={{
             ["name"]: selectedImage?.name

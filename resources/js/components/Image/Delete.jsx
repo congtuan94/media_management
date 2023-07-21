@@ -1,22 +1,26 @@
-import { Button, Modal, Form } from 'antd';
-import React, { useEffect, useState } from 'react';
-
+import { Button, Modal, Form, Typography } from 'antd';
+import React, { useContext } from 'react';
+import { AppContext } from '../../AppContext';
 
 export default function Delete(props) {
-  // const { selectedFolderId, deleteFolderModal, setDeleteFolderModal, folders, setFolders, Text, messageApi } = props;
-  const [deleteImageSuccess, setDeleteImageSuccess] = useState(false);
+  const {
+    images,
+    setImages,
+    selectedImage,
+  } = useContext(AppContext)
 
-  // Handle DELETE IMAGE
+  const { deleteImageModal, setDeleteImageModal, messageApi } = props;
+  const { Text } = Typography;
+
   const onDeleteImageFinish = async () => {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/image/${selectedImage?.id}`);
-      setDeleteImageSuccess(true);
+      const res = await axios.delete(`http://127.0.0.1:8000/api/image/${selectedImage?.id}`);
 
-      // Lọc bỏ phần tử có id trùng với selectedFolder.id
       const updatedImages = images.filter(image => image.id !== selectedImage?.id);
-
-      // Cập nhật dữ liệu tại client trước khi gửi request tới server
       setImages(updatedImages);
+
+      setDeleteImageModal(false);
+      messageApi.open({ type: 'success', content: res.data.message, duration: 5 });
     } catch (error) {
       console.log(error);
     }
@@ -26,27 +30,14 @@ export default function Delete(props) {
   };
 
   const hideModal = () => {
-    setDeleteImgModal(false);
+    setDeleteImageModal(false);
   };
-
-  // useEffect show toast
-  useEffect(() => {
-    if (deleteImageSuccess) {
-      setEditFolderModal(false);
-      setDeleteImgModal(false);
-      messageApi.open({
-        type: 'success',
-        content: deleteImageSuccess === true ? 'Delete Folder Success!' : '',
-        duration: 5,
-      });
-    }
-  }, [deleteImageSuccess])
 
   return (
     <>
-       <Modal
-        title="Delete image"
-        open={deleteImgModal}
+      <Modal
+        title="Delete folder"
+        open={deleteImageModal}
         onOk={hideModal}
         onCancel={hideModal}
         okText="Modal"

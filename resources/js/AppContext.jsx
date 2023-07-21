@@ -8,7 +8,7 @@ const AppContextProvider = ({ children }) => {
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  // const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState([]);
   // const [breadcumbs, setBreadcumbs] = useState([]);
   // const [selectedFolderGlobal, setSelectedFolderGlobal] = useState(null);
   // const [showImageModal, setShowImageModal] = useState(false);
@@ -33,8 +33,8 @@ const AppContextProvider = ({ children }) => {
 
         // showImageModal,
         // setShowImageModal,
-        // files,
-        // setFiles,
+        files,
+        setFiles,
         // breadcumbs,
         // setBreadcumbs,
         // isMultipleSelected,

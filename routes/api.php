@@ -29,8 +29,8 @@ Route::prefix('folder')->group(function () {
     Route::delete('/{id}', [FolderController::class, 'destroy']);
 
     Route::get('/{id}/images', [ImageController::class, 'index']);
-    Route::post('{id}/images/add', [ImageController::class, 'store']);
-    Route::put('/{id}/images/{imageId}', [ImageController::class, 'update']);
+    // Route::post('{id}/images/add', [ImageController::class, 'store']);
+    // Route::put('/{id}/images/{imageId}', [ImageController::class, 'update']);
     // Route::delete('/{id}/images/{imageId}', [ImageController::class, 'destroy']);
 
     // Route::get('/images/{imageName}', [ImageController::class, 'show']);
@@ -42,8 +42,8 @@ Route::prefix('folder')->group(function () {
 Route::prefix('image')->group(function () {
     // Route::get('/', [ImageController::class, 'index']);
     // // Route::get('/add', [ImageController::class, 'create']);
-    // // Route::post('/add', [ImageController::class, 'store']);
+    Route::post('/add', [ImageController::class, 'store']);
     // Route::get('/{id}', [ImageController::class, 'edit']);
-    // Route::put('/{id}', [ImageController::class, 'update']);
+    Route::put('/{id}', [ImageController::class, 'update']);
     Route::delete('/{id}', [ImageController::class, 'destroy']);
 });

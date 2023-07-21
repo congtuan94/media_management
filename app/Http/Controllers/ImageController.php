@@ -7,6 +7,8 @@ use App\Models\Image;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Http\Resources\ImageResource;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\File;
 
 class ImageController extends Controller
 {
@@ -21,10 +23,13 @@ class ImageController extends Controller
             $images = Image::where('folder_id', $id)->where('name', 'like', '%' . $searchValue . '%')->get();
         } else {
             $images = Image::with('folder')->where('folder_id', $id)->get();
-            // 10
             $data = ImageResource::collection($images);
-            logger('IMAGWE', [$data]);
-            return $data;
+            $folders = Folder::where('parent_id', $id)->get();
+            // return ['images' => $data, 'folders' => $folders];
+            return response()->json([
+                'folders' => $folders,
+                'images' => $images,
+              ]);
         }
         return response()->json($images);
     }
@@ -40,10 +45,14 @@ class ImageController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, $id)
+    public function store(Request $request)
     {
         $data = $request->all();
-        $data['folder_id'] = $id;
+        if ($request->get('folder_id')) {
+            $data['folder_id'] = $request->get('selectedFolderId');
+        } else {
+            $data['folder_id'] = null;
+        }
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
@@ -53,10 +62,21 @@ class ImageController extends Controller
                 $extension = $request->file('file')->getClientOriginalExtension();
                 $fileNameToStore = $filename . '_' . time() . '.' . $extension;
                 $path = $request->file('file')->storeAs('public/images', $fileNameToStore);
-                logger($path);
                 $data['name'] = $fileNameToStore;
+                logger($fileNameToStore);
 
                 Image::create($data);
+                $now = Carbon::now();
+                $year = $now->year;
+                $month = $now->month;
+                $day = $now->day;
+                if ($request->get('selectedFolderName')) {
+                    $folder_name = $request->get('selectedFolderName');
+                    $path = storage_path("app/public/images/$folder_name/$year/$month/$day/$fileNameToStore");
+                }
+
+                $path = storage_path("app/public/images/$year/$month/$day/$fileNameToStore");
+                File::makeDirectory($path, $mode = 0777, true, true);
             }
         }
         return response()->json([
@@ -117,7 +137,10 @@ class ImageController extends Controller
             $data['image'] = $image->image;
         }
         $image->update($data);
-        return response()->json('Update Image Success!', 200);
+        return response()->json([
+            'message' => 'Update Image Success!',
+            'status' => 200,
+        ]);
     }
 
     /**
@@ -125,7 +148,10 @@ class ImageController extends Controller
      */
     public function destroy($id)
     {
-        $delete = Image::findOrFail($id)->delete();
-        return response()->json('Delete Folder Success!', 200);
+        Image::findOrFail($id)->delete();
+        return response()->json([
+            'message' => 'Delete Image Success!',
+            'status' => 200,
+        ]);
     }
 }

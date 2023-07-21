@@ -15,7 +15,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('name');
             $table->timestamps();
-            $table->unsignedBigInteger('folder_id');
+            $table->unsignedBigInteger('folder_id')->nullable();
             $table->foreign('folder_id')->references('id')->on('folders')->onDelete('cascade');
         });
     }
