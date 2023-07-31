@@ -20,18 +20,18 @@ class ImageController extends Controller
         $searchValue = $request->query('search');
 
         if ($searchValue) {
+            $folders = Folder::where('parent_id', $id)->where('name', 'like', '%' . $searchValue . '%')->get();
             $images = Image::where('folder_id', $id)->where('name', 'like', '%' . $searchValue . '%')->get();
         } else {
             $images = Image::with('folder')->where('folder_id', $id)->get();
             $data = ImageResource::collection($images);
             $folders = Folder::where('parent_id', $id)->get();
             // return ['images' => $data, 'folders' => $folders];
-            return response()->json([
-                'folders' => $folders,
-                'images' => $images,
-              ]);
         }
-        return response()->json($images);
+        return response()->json([
+            'folders' => $folders,
+            'images' => $images,
+        ]);
     }
 
     /**
@@ -49,7 +49,7 @@ class ImageController extends Controller
     {
         $data = $request->all();
         if ($request->get('folder_id')) {
-            $data['folder_id'] = $request->get('selectedFolderId');
+            $data['folder_id'] = $request->get('folder_id');
         } else {
             $data['folder_id'] = null;
         }

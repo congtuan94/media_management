@@ -48,21 +48,24 @@ export default function MediaChild() {
   // State: set value select
   const [selectedOption, setSelectedOption] = useState('Action');
 
+  const [infoSelected, setInfoSelected] = useState('');
+
   const { Search } = Input;
   const { Text } = Typography;
 
+  const fetchData = async () => {
+    try {
+      const res = await axios.get('http://127.0.0.1:8000/api/folder');
+      console.log('res', res);
+      setFolders(res.data.folders);
+      setImages(res.data.images);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // Hand get all folders
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get('http://127.0.0.1:8000/api/folder');
-        console.log('res', res);
-        setFolders(res.data.folders);
-        setImages(res.data.images);
-      } catch (error) {
-        console.log(error);
-      }
-    };
     fetchData();
   }, []);
 
@@ -70,12 +73,14 @@ export default function MediaChild() {
   const handleOnClick = (item) => {
     setSelectedFolder(item);
     setDisabled(false);
+    setInfoSelected(item);
   }
 
   const handleOnClickImg = (item) => {
     setSelectedImage(item);
     setDisabled(false);
     setSelectImg('yes');
+    setInfoSelected(item);
   }
 
   const handleDoubleClick = async (id) => {
@@ -95,7 +100,8 @@ export default function MediaChild() {
       const res = await axios.get(!selectedFolder ? 'http://127.0.0.1:8000/api/folder' : `http://127.0.0.1:8000/api/folder/${selectedFolder?.id}/images`, {
         params: { search: keyword }
       });
-      !selectedFolder ? setFolders(res.data) : setImages(res.data);
+      setFolders(res.data.folders);
+      setImages(res.data.images);
     } catch (error) {
       console.error(error);
     }
@@ -108,7 +114,9 @@ export default function MediaChild() {
       authorization: 'authorization-text',
     },
     showUploadList: false,
-
+    data: {
+      'folder_id': selectedFolder?.id
+    },
     onChange(info) {
       if (info.file.status === 'done') {
         setImages([...images, info.file.name]);
@@ -154,7 +162,42 @@ export default function MediaChild() {
 
   //Handle breadcrumb
   const handleNavigate = () => {
-    navigate(-1);
+    fetchData();
+  };
+
+  // Function to download a folder as a JSON file
+  const downloadFolder = () => {
+    if (selectedFolder) {
+      const jsonData = JSON.stringify(selectedFolder, null, 2);
+      const blob = new Blob([jsonData], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${selectedFolder.name}.json`;
+      link.click();
+    } else {
+      alert('Please select a folder to download.');
+    }
+  };
+
+  // Function to download an image
+  const downloadImage = () => {
+    if (imageUrl) {
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = selectedImage?.name || 'image.png';
+      link.click();
+    } else {
+      alert('Please select an image to download.');
+    }
+  };
+
+  const handleDownload = () => {
+    if (selectImg === 'yes') {
+      downloadImage();
+    } else {
+      downloadFolder();
+    }
   };
 
   return (
@@ -171,13 +214,13 @@ export default function MediaChild() {
             <Upload {...props}>
               <Button type='primary' icon={<UploadOutlined />} className="custom-button">Upload</Button>
             </Upload>
-            <Button type="primary" icon={<DownloadOutlined />} className="custom-button">
+            <Button type="primary" onClick={handleDownload} icon={<DownloadOutlined />} className="custom-button">
               Download
             </Button>
             <Button type="primary" onClick={showCreateFolderModal} icon={<DownloadOutlined />} className="custom-button">
               Create folder
             </Button>
-            <Button type="primary" icon={<DownloadOutlined />} className="custom-button">
+            <Button type="primary" onClick={() => fetchData()} icon={<DownloadOutlined />} className="custom-button">
               Refresh
             </Button>
           </Space>
@@ -189,7 +232,7 @@ export default function MediaChild() {
 
         <Divider style={{ margin: '8px 0' }} />
         <Col span={19}>
-          <Breadcrumb items={[{ title: <span onClick={() => handleNavigate()}>Folder</span> }, { title: 'Images' }]} />
+          <Breadcrumb items={[{ title: <span onClick={handleNavigate} style={{ cursor: 'pointer' }}>Folder</span> }, { title: <span>Images</span> }]} />
         </Col>
         <Col span={5}>
           <Select
@@ -243,23 +286,13 @@ export default function MediaChild() {
               fallback="data:image/png;base64,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"
               preview={false}
             />
-            {selectedFolder && !selectedImage && (
-              <div>
-                <Text>Id: {selectedFolder?.id}</Text>
-                <Text>Name: {selectedFolder?.name}</Text>
-                <Text>Created At: {new Date(selectedFolder.created_at?.slice(0, -1)).toLocaleString()}</Text>
-                <Text>Updated At: {new Date(selectedFolder.updated_at?.slice(0, -1)).toLocaleString()}</Text>
-              </div>
-            )
-            }
-
-            {selectedImage && (
-              <>
-                <Text>Id: {selectedImage?.id}</Text>
-                <Text>Name: {selectedImage?.name}</Text>
-                <Text>Created At: {new Date(selectedImage?.created_at?.slice(0, -1)).toLocaleString()}</Text>
-                <Text>Updated At: {new Date(selectedImage?.updated_at?.slice(0, -1)).toLocaleString()}</Text>
-              </>
+            {infoSelected && (
+              <Space direction="vertical" size="small" align="center">
+                <Text>Id: {infoSelected?.id}</Text>
+                <Text>Name: {infoSelected?.name}</Text>
+                <Text>Created At: {new Date(infoSelected.created_at?.slice(0, -1)).toLocaleString()}</Text>
+                <Text>Updated At: {new Date(infoSelected.updated_at?.slice(0, -1)).toLocaleString()}</Text>
+              </Space>
             )
             }
           </Space>

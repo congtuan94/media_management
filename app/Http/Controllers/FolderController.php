@@ -19,18 +19,17 @@ class FolderController extends Controller
 
         if ($searchValue) {
             $folders = Folder::where('name', 'like', '%' . $searchValue . '%')->get();
+            $images = Image::where('name', 'like', '%' . $searchValue . '%')->get();
         } else {
             $images = Image::with('folder')->where('folder_id', null)->get();
             $data = ImageResource::collection($images);
             $folders = Folder::where('parent_id', null)->get();
-
-            return response()->json([
-                'folders' => $folders,
-                'images' => $images,
-            ]);
         }
 
-        return response()->json($folders);
+        return response()->json([
+            'folders' => $folders,
+            'images' => $images,
+        ]);
     }
 
     /**
